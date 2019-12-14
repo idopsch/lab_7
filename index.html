@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Bus Routes</title>
+  <link rel="stylesheet" type="text/css" href="./lab_styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="wrapper">
+      <div class="header">UMD Bus Routes</div>
+      <button class="button" onclick="loadData()">Load JSON</button>
+      <div class="content"></div>
+      <div class="footer"></div>
+    </div>
+  </div>
+  <script>
+    function loadData() {
+      let fetchReq = fetch('https://api.umd.io/v0/bus/routes')
+        fetchReq.then(res => res.json())
+        .then(data => {
+          console.log(data);
+          return data;
+        })
+        .then(data => {
+          const rAndTArr = data.map(c => `${c.route_id} ${c.title}`);
+          makeHTMLList(rAndTArr);
+
+          return data
+        })
+        .then(data => {
+
+          const htmlHeader = document.querySelector('.header');
+          const chosenRoute = data.find(route => route.route_id === '104'); // they can pick any route number
+          const newHeader = `UMD Bus Route ${chosenRoute.route_id} ${chosenRoute.title}`;
+
+          htmlHeader.innerText = newHeader;
+          return data;
+        })
+        .then(data => {
+
+          const routeAndTitleArray = data.map(rAndT => {
+            let title = rAndT.title;
+
+            if (title.includes(rAndT.route_id)) {
+              const routePos = title.indexOf(rAndT.route_id);
+              const routeLen = routePos + rAndT.route_id.length + 1;
+
+              title = title.substr(routeLen, title.length);
+            }
+            return `${rAndT.route_id} ${title}`
+          });
+
+
+          const chosenRoute = routeAndTitleArray.find(f => f.includes('104')); // they can pick any route number
+          const newHeader = `UMD Bus Route ${chosenRoute}`;
+          document.querySelector('.header').innerText = newHeader;
+
+          makeHTMLList(routeAndTitleArray);
+          return data;
+        })
+        .then(data => console.log(data));
+    }
+
+    function makeHTMLList(array) {
+      const htmlTarget = document.querySelector('.content');
+      htmlTarget.innerHTML = '';
+      let el1 = document.createElement("ul");
+      el1.className = 'list';
+      htmlTarget.appendChild(el1);
+
+      for (let i = 0; i < array.length; i++) {
+        let el = document.createElement("li");
+        el.innerText = array[i];
+        htmlTarget.appendChild(el);
+      };
+    }
+  </script>
+</body>
+
+</html>
